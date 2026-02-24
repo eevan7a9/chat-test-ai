@@ -1,6 +1,6 @@
 # Getting Started
 
-1. create `.env.local` file add `OPEN_API_TOKEN` variable and provide a valid OpenAI key.
+1. create `.env.local` file add `OPEN_API_TOKEN` or `GEMINI_API_KEY` variable and provide a valid OpenAI key. (if both are present in .env it will prioritize OPEN_API_TOKEN)
 
 2. Install dependencies `npm install`
 
