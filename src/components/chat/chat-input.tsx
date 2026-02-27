@@ -8,9 +8,14 @@ import { useState } from "react";
 interface ChatInputProps {
   onSendMessage?: (message: string) => void;
   disabled?: boolean;
+  lastMessage?: string;
 }
 
-export default function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
+export default function ChatInput({
+  onSendMessage,
+  disabled,
+  lastMessage,
+}: ChatInputProps) {
   const [message, setMessage] = useState("");
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -21,6 +26,7 @@ export default function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
   }
 
   function messageSent() {
+    if (disabled || !message.trim() || lastMessage === message) return;
     if (onSendMessage) {
       onSendMessage(message);
       setMessage("");

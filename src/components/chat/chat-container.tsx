@@ -18,9 +18,12 @@ export const mockMessages: ChatMessage[] = [];
 export default function ChatContainer({ className }: { className?: string }) {
   const [selectedTutor, setSelectedTutor] = useState<Subject | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   async function handleSendMessage(message: string) {
+    if (isSending) return;
+    setIsSending(true);
+
     const newMessage: ChatMessage = {
       id: (messages.length + 1).toString(),
       role: "user",
@@ -30,7 +33,6 @@ export default function ChatContainer({ className }: { className?: string }) {
     setMessages((prev) => [...prev, newMessage]);
 
     try {
-      setIsLoading(true);
       const aiContent = await chatService.getResponse(
         [...messages, newMessage],
         selectedTutor?.context ||
@@ -44,10 +46,8 @@ export default function ChatContainer({ className }: { className?: string }) {
         content: aiContent,
         createdAt: new Date(),
       };
-
       setMessages((prev) => [...prev, aiMessage]);
 
-      setIsLoading(false);
       toast.success("This is a success message!", {
         dismissible: true,
         duration: 5000,
@@ -55,6 +55,8 @@ export default function ChatContainer({ className }: { className?: string }) {
     } catch (error) {
       toast.error("Failed to get response from the tutor. Please try again.");
       console.error("Error fetching AI response:", error);
+    } finally {
+      setIsSending(false);
     }
   }
 
@@ -131,7 +133,7 @@ export default function ChatContainer({ className }: { className?: string }) {
           )}
         </div>
 
-        {isLoading && (
+        {isSending && (
           <div className="grow flex justify-center items-center z-50 absolute inset-0 bg-white/75">
             <p className="flex items-center p-4 text-center text-sm text-gray-500">
               <Spinner /> Loading response...
@@ -140,8 +142,9 @@ export default function ChatContainer({ className }: { className?: string }) {
         )}
 
         <ChatInput
-          disabled={!selectedTutor || isLoading}
+          disabled={!selectedTutor || isSending}
           onSendMessage={handleSendMessage}
+          lastMessage={messages[messages.length - 1]?.content}
         />
       </section>
     </div>
